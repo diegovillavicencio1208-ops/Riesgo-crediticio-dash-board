@@ -11,7 +11,7 @@
                        Corregido tramo_mora para calcularse sobre el valor ya corregido de dias_atraso
 
    VISTAS CREADAS:
-       MART_T1_creditos       → Créditos limpios + columnas calculadas (~690 filas)
+       MART_T1_creditos       → Créditos limpios + columnas calculadas (~8000 filas)
        MART_T2_kpis           → KPIs mensuales tipificados (24 filas)
        MART_T3_clientes       → Clientes limpios (390 filas)
        MART_T4_cosechas       → Cosechas tipificadas (222 filas)
