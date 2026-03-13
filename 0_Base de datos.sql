@@ -7,10 +7,10 @@
    VERSIÓN     : 1.0
    
    TABLAS RAW:
-       T1_creditos_riesgo_crediticio_RAW   → 806 registros  | 54 columnas
-       T2_kpis_mensuales_riesgo_RAW        → 24  registros  | 18 columnas
-       T3_clientes_riesgo_crediticio_RAW   → 390 registros  | 15 columnas
-       T4_cosechas_vintage_riesgo_RAW      → 222 registros  |  8 columnas
+       T1_creditos_riesgo_crediticio_RAW   
+       T2_kpis_mensuales_riesgo_RAW        
+       T3_clientes_riesgo_crediticio_RAW   
+       T4_cosechas_vintage_riesgo_RAW      
        
    NOTA: Todas las columnas se cargan como VARCHAR(MAX) para preservar los datos
          originales sin conversión. La tipificación ocurre en la capa MART.
