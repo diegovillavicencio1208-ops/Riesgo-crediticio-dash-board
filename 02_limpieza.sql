@@ -1,12 +1,12 @@
 /* ============================================================================================================================
    PROYECTO    : Análisis de Riesgo Crediticio
    ARCHIVO     : 02_limpieza.sql
-   DESCRIPCIÓN : Capa MART — Vistas limpias construidas sobre las tablas RAW
+   DESCRIPCIÓN : Capa MART - Vistas limpias construidas sobre las tablas RAW
                  Aplica todas las reglas identificadas en 01_exploratorio.sql
                  Las vistas NO almacenan datos, consultan en tiempo real desde RAW
    AUTOR       : Diego L. Villavicencio
    FECHA       : 2026-03-05
-   VERSIÓN     : 1.1 — Eliminadas año_desembolso y mes_desembolso (cubiertas por DIM_calendario en DAX)
+   VERSIÓN     : 1.1 - Eliminadas año_desembolso y mes_desembolso (cubiertas por DIM_calendario en DAX)
                        Eliminadas columnas año y mes de MART_T2_kpis (misma razón)
                        Corregido tramo_mora para calcularse sobre el valor ya corregido de dias_atraso
 
@@ -33,7 +33,7 @@ USE RiesgoCrediticioProyecto;
 GO
 
 /* ============================================================================================================================
-   MART 1 — CRÉDITOS
+   MART 1 - CRÉDITOS
    Fuente  : T1_creditos_riesgo_crediticio_RAW
    Uso     : Páginas 1, 2 y 3 del dashboard
    Nota    : ROW_NUMBER() elimina duplicados priorizando registros sin flag_error
@@ -55,7 +55,7 @@ WITH creditos_unicos AS (
         ) AS nro_fila
     FROM T1_creditos_riesgo_crediticio_RAW
 ),
--- PASO 2: Corrección de días de atraso — se hace en CTE para que tramo_mora
+-- PASO 2: Corrección de días de atraso - se hace en CTE para que tramo_mora
 --         lo consuma ya corregido y no haya inconsistencia entre ambas columnas
 creditos_corregidos AS (
     SELECT *,
@@ -72,14 +72,14 @@ creditos_corregidos AS (
         AND CAST(tasa_nominal_anual_pct AS DECIMAL(8,4)) BETWEEN 0.1 AND 100
         AND CAST(fecha_vencimiento AS DATE) > CAST(fecha_desembolso AS DATE)
 )
--- PASO 3: Cuerpo principal — todas las columnas limpias y tipificadas
+-- PASO 3: Cuerpo principal - todas las columnas limpias y tipificadas
 SELECT
     -- IDENTIFICACIÓN
     id_snapshot,
     id_cliente,
     tipo_persona,
     segmento,
-    -- Normalización sector económico — cubre los 8 valores del catálogo oficial (diccionario var. 5)
+    -- Normalización sector económico - cubre los 8 valores del catálogo oficial (diccionario var. 5)
     CASE
         WHEN sector_economico IN ('comercio','COMERCIO','Comerc.')              THEN 'Comercio'
         WHEN sector_economico IN ('Ind.','industria','INDUSTRIA')               THEN 'Industria'
@@ -194,7 +194,7 @@ SELECT
 -- CASTIGOS tipificados---------------------------------------------------------
     CAST(en_castigo      AS INT)                                    AS en_castigo,
     CAST(monto_castigado AS DECIMAL(18,2))                          AS monto_castigado,
--- TRAZABILIDAD — preservado para auditoría-------------------------------------
+-- TRAZABILIDAD - preservado para auditoría-------------------------------------
     ISNULL(flag_error, '')                                          AS flag_error
 
 FROM creditos_corregidos;
@@ -203,9 +203,9 @@ GO
 /* ============================================================================================================================
    MART 2 - KPIs MENSUALES
    Fuente  : T2_kpis_mensuales_riesgo_RAW
-   Uso     : Página 1 — Resumen Ejecutivo (Director)
+   Uso     : Página 1 - Resumen Ejecutivo (Director)
    Nota    : No tiene errores de calidad, solo tipificación y columna calculada
-             año y mes eliminados — DIM_calendario los cubre en Power BI
+             año y mes eliminados - DIM_calendario los cubre en Power BI
 ============================================================================================================================ */
 
 DROP VIEW IF EXISTS MART_T2_kpis;
@@ -213,7 +213,7 @@ GO
 
 CREATE VIEW MART_T2_kpis AS
 SELECT
-    -- Período — fecha_mes es la llave de relación con DIM_calendario en Power BI
+    -- Período - fecha_mes es la llave de relación con DIM_calendario en Power BI
     CAST(fecha_mes AS DATE)                                         AS fecha_mes,
 -- Cartera----------------------------------------------------------------------
     CAST(cartera_bruta_total           AS DECIMAL(18,2))            AS cartera_bruta_total,
@@ -294,9 +294,9 @@ FROM T3_clientes_riesgo_crediticio_RAW;
 GO
 
 /* ============================================================================================================================
-   MART 4 — COSECHAS / VINTAGE
+   MART 4 - COSECHAS / VINTAGE
    Fuente  : T4_cosechas_vintage_riesgo_RAW
-   Uso     : Página 3 — Curvas de cosecha
+   Uso     : Página 3 - Curvas de cosecha
    Nota    : No tiene errores de calidad, solo tipificación y columna calculada
 ============================================================================================================================ */
 
@@ -322,9 +322,9 @@ FROM T4_cosechas_vintage_riesgo_RAW;
 GO
 
 /* ============================================================================================================================
-   MART 5 — LOG DE CALIDAD
+   MART 5 - LOG DE CALIDAD
    Fuente  : LOG_calidad_datos
-   Uso     : Página 4 — Notas Metodológicas
+   Uso     : Página 4 - Notas Metodológicas
    Nota    : Expone el log con columnas calculadas de severidad y acción para Power BI
 ============================================================================================================================ */
 
@@ -365,7 +365,7 @@ FROM LOG_calidad_datos;
 GO
 
 /* ============================================================================================================================
-   VERIFICACIÓN FINAL — Las 5 vistas deben existir y devolver registros
+   VERIFICACIÓN FINAL - Las 5 vistas deben existir y devolver registros
 ============================================================================================================================ */
 
 SELECT 'MART_T1_creditos'   AS vista, COUNT(*) AS registros FROM MART_T1_creditos   
