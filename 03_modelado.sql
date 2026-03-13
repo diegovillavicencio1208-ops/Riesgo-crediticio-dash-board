@@ -444,38 +444,4 @@ SELECT
     SUM(CASE WHEN id_exposicion     IS NULL THEN 1 ELSE 0 END) AS sin_exposicion
 FROM FCT_creditos;
 
-/* ============================================================================================================================
-   RELACIONES A CONFIGURAR EN POWER BI
-   (referencia para cuando conectes las tablas)
 
-   MODELO 1- Star Schema Créditos:
-   ┌──────────────────────────────────────────────────────────────────────────────┐
-   │  DIM_geografia      .id_geografia     - FCT_creditos.id_geografia           │ 1:N
-   │  DIM_segmento       .id_segmento      - FCT_creditos.id_segmento            │ 1:N
-   │  DIM_sector         .id_sector        - FCT_creditos.id_sector              │ 1:N
-   │  DIM_producto       .id_producto      - FCT_creditos.id_producto            │ 1:N
-   │  DIM_calificacion   .id_calificacion  - FCT_creditos.id_calificacion        │ 1:N
-   │  DIM_garantia       .id_garantia      - FCT_creditos.id_garantia            │ 1:N
-   │  DIM_oficial        .id_oficial       - FCT_creditos.id_oficial             │ 1:N
-   │  DIM_riesgo_credito .id_riesgo_credito- FCT_creditos.id_riesgo_credito      │ 1:N  [NUEVO]
-   │  DIM_comportamiento .id_comportamiento- FCT_creditos.id_comportamiento      │ 1:N  [NUEVO]
-   │  DIM_exposicion     .id_exposicion    - FCT_creditos.id_exposicion          │ 1:N  [NUEVO]
-   │  DIM_calendario     .Date             - FCT_creditos.fecha_desembolso       │ 1:N
-   │  DIM_calendario     .cosecha_mes      - MART_T4_cosechas.cosecha_mes        │ 1:N
-   │  MART_T3_clientes   .id_cliente       - FCT_creditos.id_cliente             │ 1:N
-   └──────────────────────────────────────────────────────────────────────────────┘
-
-   MODELO 2- Star Schema KPIs:
-   ┌──────────────────────────────────────────────────────────────────────────────┐
-   │  DIM_calendario .Date- MART_T2_kpis.fecha_mes                              │ 1:N
-   └──────────────────────────────────────────────────────────────────────────────┘
-
-   DIM_calendario en Power BI (DAX):
-       DIM_calendario   = CALENDAR(DATE(2024,1,1), DATE(2025,12,31))
-       Año              = YEAR([Date])
-       Mes              = MONTH([Date])
-       Nombre mes       = FORMAT([Date], "MMMM")
-       Mes abreviado    = FORMAT([Date], "MMM")
-       Trimestre        = "Q" & QUARTER([Date])
-       cosecha_mes      = FORMAT([Date], "yyyy-MM")   ← llave para MART_T4_cosechas
-============================================================================================================================ */
