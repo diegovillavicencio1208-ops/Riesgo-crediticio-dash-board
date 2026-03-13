@@ -18,14 +18,14 @@
        MART_T5_calidad_datos  → Log de calidad para Página 4 del dashboard
 
    REGLAS APLICADAS:
-       ✓ Excluir: proceso judicial, crédito empleado, monto negativo,
+       - Excluir: proceso judicial, crédito empleado, monto negativo,
                   tasa inválida, fecha inconsistente, duplicados
-       ✓ Corregir: días de atraso negativos → 0
-       ✓ Normalizar: sector económico fuera de catálogo
-       ✓ Segmentar: score inválido/nulo → Sin Score
-       ✓ Imputar: garantía nula → Sin Información
-       ✓ Tipificar: todas las columnas de VARCHAR(MAX) a tipos correctos
-       ✓ Calcular: cosecha_mes, tramo_mora, tramo_score, tramo_endeudamiento,
+       - Corregir: días de atraso negativos → 0
+       - Normalizar: sector económico fuera de catálogo
+       - Segmentar: score inválido/nulo → Sin Score
+       - Imputar: garantía nula → Sin Información
+       - Tipificar: todas las columnas de VARCHAR(MAX) a tipos correctos
+       - Calcular: cosecha_mes, tramo_mora, tramo_score, tramo_endeudamiento,
                    flag_deficit_provision, tasa_supervivencia_pct, castigos_netos
 ============================================================================================================================ */
 
@@ -201,7 +201,7 @@ FROM creditos_corregidos;
 GO
 
 /* ============================================================================================================================
-   MART 2 — KPIs MENSUALES
+   MART 2 - KPIs MENSUALES
    Fuente  : T2_kpis_mensuales_riesgo_RAW
    Uso     : Página 1 — Resumen Ejecutivo (Director)
    Nota    : No tiene errores de calidad, solo tipificación y columna calculada
@@ -243,7 +243,7 @@ FROM T2_kpis_mensuales_riesgo_RAW;
 GO
 
 /* ============================================================================================================================
-   MART 3 — CLIENTES
+   MART 3 - CLIENTES
    Fuente  : T3_clientes_riesgo_crediticio_RAW
    Uso     : Páginas 2 y 3 del dashboard
    Nota    : No tiene errores de calidad, solo tipificación y columnas calculadas
