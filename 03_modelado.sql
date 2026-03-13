@@ -32,27 +32,6 @@
          centraliza todas las relaciones temporales incluyendo cosecha_mes de T4.
          DIM_cosecha eliminada- DIM_calendario cubre su función al incluir
          una columna cosecha_mes = FORMAT([Date], "yyyy-MM")
-
-   CAMBIOS v1.2 vs v1.1:
-      - DIM_calificacion    : eliminado tramo_score- reducía combinaciones de ~25 a ~10
-                                tramo_score se mueve a DIM_riesgo_credito para poder
-                                filtrar score y calificación regulatoria de forma independiente
-      - DIM_riesgo_credito  : NUEVA- modelo interno Basilea completo
-                                tramo_score (score del cliente por bandas [200-850])
-                                tramo_pd    (probabilidad de default: 5 bandas operativas)
-                                tramo_lgd   (severidad de pérdida: 3 bandas)
-      - DIM_comportamiento  : NUEVA- historial de refinanciaciones + estado de castigo
-                                perfil_refinanciacion (sin refinanciación / una vez /
-                                reincidente / problemático)
-                                flag_castigo_activo (etiqueta legible de en_castigo)
-      - DIM_exposicion      : NUEVA- estructura del crédito en tres ejes
-                                tramo_plazo  (corto / mediano / largo / muy largo)
-                                tramo_ltv    (bajo / moderado / alto / crítico)
-                                tramo_spread (negativo / bajo / normal / alto)
-      - FCT_creditos        : añadidas 3 llaves foráneas nuevas. Los campos numéricos
-                                (score, pd, lgd, numero_refinanciaciones, ltv, spread,
-                                plazo_meses) y los flags binarios (flag_score, es_refinanciado,
-                                en_castigo) se conservan en FCT para cálculos DAX
 ============================================================================================================================ */
 
 USE RiesgoCrediticioProyecto;
