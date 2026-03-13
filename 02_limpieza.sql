@@ -11,19 +11,19 @@
                        Corregido tramo_mora para calcularse sobre el valor ya corregido de dias_atraso
 
    VISTAS CREADAS:
-       MART_T1_creditos       → Créditos limpios + columnas calculadas (~8000 filas)
-       MART_T2_kpis           → KPIs mensuales tipificados (24 filas)
-       MART_T3_clientes       → Clientes limpios (390 filas)
-       MART_T4_cosechas       → Cosechas tipificadas (222 filas)
-       MART_T5_calidad_datos  → Log de calidad para Página 4 del dashboard
+       MART_T1_creditos       - Créditos limpios + columnas calculadas (~8000 filas)
+       MART_T2_kpis           - KPIs mensuales tipificados (24 filas)
+       MART_T3_clientes       - Clientes limpios (390 filas)
+       MART_T4_cosechas       - Cosechas tipificadas (222 filas)
+       MART_T5_calidad_datos  - Log de calidad para Página 4 del dashboard
 
    REGLAS APLICADAS:
        - Excluir: proceso judicial, crédito empleado, monto negativo,
                   tasa inválida, fecha inconsistente, duplicados
-       - Corregir: días de atraso negativos → 0
+       - Corregir: días de atraso negativos - 0
        - Normalizar: sector económico fuera de catálogo
-       - Segmentar: score inválido/nulo → Sin Score
-       - Imputar: garantía nula → Sin Información
+       - Segmentar: score inválido/nulo - Sin Score
+       - Imputar: garantía nula - Sin Información
        - Tipificar: todas las columnas de VARCHAR(MAX) a tipos correctos
        - Calcular: cosecha_mes, tramo_mora, tramo_score, tramo_endeudamiento,
                    flag_deficit_provision, tasa_supervivencia_pct, castigos_netos
@@ -118,7 +118,7 @@ SELECT
     CAST(tasa_efectiva_anual_pct  AS DECIMAL(8,4))                  AS tasa_efectiva_anual_pct,
     CAST(spread_pct               AS DECIMAL(8,4))                  AS spread_pct,
 -- MORA Y CALIFICACIÓN----------------------------------------------------------
-    -- Corrección ya aplicada en CTE anterior: días negativos → 0
+    -- Corrección ya aplicada en CTE anterior: días negativos - 0
     dias_atraso_corregido                                           AS dias_atraso,
     CAST(numero_cuotas_vencidas AS INT)                             AS numero_cuotas_vencidas,
     calificacion_sbs,
