@@ -1,55 +1,55 @@
 /* ============================================================================================================================
    PROYECTO    : Análisis de Riesgo Crediticio
    ARCHIVO     : 03_modelado.sql
-   DESCRIPCIÓN : Capa Star Schema — Tablas físicas DIM y FCT para Power BI
+   DESCRIPCIÓN : Capa Star Schema- Tablas físicas DIM y FCT para Power BI
                  Lee exclusivamente desde las vistas MART (nunca desde RAW)
                  Genera el modelo dimensional listo para conectar a Power BI
    AUTOR       : Diego L. Villavicencio
    FECHA       : 2026-03-05
-   VERSIÓN     : 1.2 — Añadidas DIM_riesgo_credito, DIM_comportamiento, DIM_exposicion
+   VERSIÓN     : 1.2- Añadidas DIM_riesgo_credito, DIM_comportamiento, DIM_exposicion
                         DIM_calificacion simplificada (tramo_score movido a DIM_riesgo_credito)
 
-   MODELO 1 — Star Schema de Créditos (Páginas 1, 2, 3)
-       DIM_geografia       → zonas geográficas únicas
-       DIM_segmento        → combinaciones tipo_persona + segmento
-       DIM_sector          → sectores económicos normalizados
-       DIM_producto        → combinaciones producto + moneda
-       DIM_calificacion    → calificación SBS + tramo_mora  [simplificada en v1.2]
-       DIM_garantia        → tipos de garantía
-       DIM_oficial         → oficiales de crédito
-       DIM_riesgo_credito  → tramo_score + tramo_pd + tramo_lgd  [NUEVO v1.2]
-       DIM_comportamiento  → perfil_refinanciacion + flag_castigo_activo  [NUEVO v1.2]
-       DIM_exposicion      → tramo_plazo + tramo_ltv + tramo_spread  [NUEVO v1.2]
-       FCT_creditos        → tabla de hechos con métricas + llaves foráneas
-       MART_T3_clientes    → satélite conectado por id_cliente
-       MART_T4_cosechas    → satélite conectado a DIM_calendario por cosecha_mes
+   MODELO 1- Star Schema de Créditos (Páginas 1, 2, 3)
+       DIM_geografia      - zonas geográficas únicas
+       DIM_segmento       - combinaciones tipo_persona + segmento
+       DIM_sector         - sectores económicos normalizados
+       DIM_producto       - combinaciones producto + moneda
+       DIM_calificacion   - calificación SBS + tramo_mora  [simplificada en v1.2]
+       DIM_garantia       - tipos de garantía
+       DIM_oficial        - oficiales de crédito
+       DIM_riesgo_credito - tramo_score + tramo_pd + tramo_lgd  [NUEVO v1.2]
+       DIM_comportamiento - perfil_refinanciacion + flag_castigo_activo  [NUEVO v1.2]
+       DIM_exposicion     - tramo_plazo + tramo_ltv + tramo_spread  [NUEVO v1.2]
+       FCT_creditos       - tabla de hechos con métricas + llaves foráneas
+       MART_T3_clientes   - satélite conectado por id_cliente
+       MART_T4_cosechas   - satélite conectado a DIM_calendario por cosecha_mes
 
-   MODELO 2 — Star Schema de KPIs (Página 1)
-       DIM_calendario      → se crea en Power BI con DAX (CALENDAR function)
-       MART_T2_kpis        → tabla de KPIs conectada a DIM_calendario por fecha_mes
+   MODELO 2- Star Schema de KPIs (Página 1)
+       DIM_calendario     - se crea en Power BI con DAX (CALENDAR function)
+       MART_T2_kpis       - tabla de KPIs conectada a DIM_calendario por fecha_mes
 
    NOTA: DIM_calendario NO se crea en SQL. Se genera en Power BI con DAX y
          centraliza todas las relaciones temporales incluyendo cosecha_mes de T4.
-         DIM_cosecha eliminada — DIM_calendario cubre su función al incluir
+         DIM_cosecha eliminada- DIM_calendario cubre su función al incluir
          una columna cosecha_mes = FORMAT([Date], "yyyy-MM")
 
    CAMBIOS v1.2 vs v1.1:
-       — DIM_calificacion    : eliminado tramo_score — reducía combinaciones de ~25 a ~10
+      - DIM_calificacion    : eliminado tramo_score- reducía combinaciones de ~25 a ~10
                                 tramo_score se mueve a DIM_riesgo_credito para poder
                                 filtrar score y calificación regulatoria de forma independiente
-       — DIM_riesgo_credito  : NUEVA — modelo interno Basilea completo
+      - DIM_riesgo_credito  : NUEVA- modelo interno Basilea completo
                                 tramo_score (score del cliente por bandas [200-850])
                                 tramo_pd    (probabilidad de default: 5 bandas operativas)
                                 tramo_lgd   (severidad de pérdida: 3 bandas)
-       — DIM_comportamiento  : NUEVA — historial de refinanciaciones + estado de castigo
+      - DIM_comportamiento  : NUEVA- historial de refinanciaciones + estado de castigo
                                 perfil_refinanciacion (sin refinanciación / una vez /
                                 reincidente / problemático)
                                 flag_castigo_activo (etiqueta legible de en_castigo)
-       — DIM_exposicion      : NUEVA — estructura del crédito en tres ejes
+      - DIM_exposicion      : NUEVA- estructura del crédito en tres ejes
                                 tramo_plazo  (corto / mediano / largo / muy largo)
                                 tramo_ltv    (bajo / moderado / alto / crítico)
                                 tramo_spread (negativo / bajo / normal / alto)
-       — FCT_creditos        : añadidas 3 llaves foráneas nuevas. Los campos numéricos
+      - FCT_creditos        : añadidas 3 llaves foráneas nuevas. Los campos numéricos
                                 (score, pd, lgd, numero_refinanciaciones, ltv, spread,
                                 plazo_meses) y los flags binarios (flag_score, es_refinanciado,
                                 en_castigo) se conservan en FCT para cálculos DAX
@@ -59,7 +59,7 @@ USE RiesgoCrediticioProyecto;
 GO
 
 /* ============================================================================================================================
-   MODELO 1 — DIMENSIONES EXISTENTES
+   MODELO 1- DIMENSIONES EXISTENTES
    DIM 1 a DIM 7 sin cambios, excepto DIM_calificacion que elimina tramo_score
 ============================================================================================================================ */
 
@@ -114,7 +114,7 @@ FROM (
 ) AS combinaciones;
 
 -- ── DIM 5: CALIFICACIÓN SBS + TRAMO MORA  [simplificada en v1.2] ─────────────
--- tramo_score eliminado — ahora vive en DIM_riesgo_credito
+-- tramo_score eliminado- ahora vive en DIM_riesgo_credito
 -- Esto reduce las combinaciones de ~25 a ~10 y permite filtrar
 -- la calificación regulatoria y el scoring interno de forma independiente
 DROP TABLE IF EXISTS DIM_calificacion;
@@ -154,7 +154,7 @@ FROM (
 ) AS combinaciones;
 
 /* ============================================================================================================================
-   MODELO 1 — DIMENSIONES NUEVAS v1.2
+   MODELO 1- DIMENSIONES NUEVAS v1.2
    Tres DIM derivadas de métricas numéricas presentes en MART_T1_creditos
    Los valores numéricos brutos se conservan en FCT para cálculos DAX
    Las DIM solo contienen tramos/etiquetas para slicers y agrupadores
@@ -165,7 +165,7 @@ FROM (
 -- Permite cruzar el perfil de riesgo interno con la calificación regulatoria
 -- SBS sin que interfieran en la misma dimensión
 --
--- tramo_score : 5 bandas del score interno [200-850] — viene desde MART_T1
+-- tramo_score : 5 bandas del score interno [200-850]- viene desde MART_T1
 -- tramo_pd    : probabilidad de default en 5 bandas operativas
 -- tramo_lgd   : severidad de pérdida esperada en 3 bandas
 DROP TABLE IF EXISTS DIM_riesgo_credito;
@@ -181,7 +181,7 @@ FROM (
         -- tramo_score ya viene calculado desde MART_T1_creditos
         tramo_score,
 
-        -- tramo_pd — 5 bandas operativas de probabilidad de default
+        -- tramo_pd- 5 bandas operativas de probabilidad de default
         CASE
             WHEN pd_probabilidad_default IS NULL               THEN 'Sin PD'
             WHEN pd_probabilidad_default <  0.05               THEN 'Muy baja (<5%)'
@@ -191,7 +191,7 @@ FROM (
             ELSE                                                     'Muy alta (>=50%)'
         END AS tramo_pd,
 
-        -- tramo_lgd — 3 bandas de severidad de pérdida en caso de default
+        -- tramo_lgd- 3 bandas de severidad de pérdida en caso de default
         CASE
             WHEN lgd_loss_given_default IS NULL                THEN 'Sin LGD'
             WHEN lgd_loss_given_default <  0.35                THEN 'Baja (<35%)'
@@ -207,7 +207,7 @@ FROM (
 -- Permite identificar el perfil conductual del crédito sin cruzar
 -- múltiples flags en cada visual de Power BI
 --
--- perfil_refinanciacion : 4 niveles — sin refinanciación, una vez, reincidente, problemático
+-- perfil_refinanciacion : 4 niveles- sin refinanciación, una vez, reincidente, problemático
 -- flag_castigo_activo   : etiqueta legible de en_castigo (0/1)
 DROP TABLE IF EXISTS DIM_comportamiento;
 
@@ -218,7 +218,7 @@ SELECT
 INTO DIM_comportamiento
 FROM (
     SELECT DISTINCT
-        -- perfil_refinanciacion — 4 niveles de reincidencia
+        -- perfil_refinanciacion- 4 niveles de reincidencia
         CASE
             WHEN es_refinanciado = 0                             THEN 'Sin refinanciación'
             WHEN numero_refinanciaciones = 1                     THEN 'Una vez'
@@ -226,7 +226,7 @@ FROM (
             ELSE                                                       'Problemático (>3)'
         END AS perfil_refinanciacion,
 
-        -- flag_castigo_activo — etiqueta legible para slicers en Power BI
+        -- flag_castigo_activo- etiqueta legible para slicers en Power BI
         CASE
             WHEN en_castigo = 1                                  THEN 'En castigo'
             ELSE                                                       'Activo'
@@ -253,7 +253,7 @@ SELECT
 INTO DIM_exposicion
 FROM (
     SELECT DISTINCT
-        -- tramo_plazo — horizonte temporal en meses
+        -- tramo_plazo- horizonte temporal en meses
         CASE
             WHEN plazo_meses IS NULL         THEN 'Sin dato'
             WHEN plazo_meses <=  12          THEN 'Corto (<=12m)'
@@ -262,7 +262,7 @@ FROM (
             ELSE                                   'Muy largo (>60m)'
         END AS tramo_plazo,
 
-        -- tramo_ltv — cobertura garantía vs saldo
+        -- tramo_ltv- cobertura garantía vs saldo
         -- LTV > 100% indica que la garantía ya no cubre la deuda expuesta
         CASE
             WHEN ltv_loan_to_value IS NULL   THEN 'Sin dato'
@@ -272,7 +272,7 @@ FROM (
             ELSE                                   'Crítico (>100%)'
         END AS tramo_ltv,
 
-        -- tramo_spread — rentabilidad ajustada por riesgo
+        -- tramo_spread- rentabilidad ajustada por riesgo
         -- Spread negativo puede ser error de datos o política de crédito especial
         CASE
             WHEN spread_pct IS NULL          THEN 'Sin dato'
@@ -286,7 +286,7 @@ FROM (
 ) AS combinaciones;
 
 /* ============================================================================================================================
-   MODELO 1 — TABLA DE HECHOS  [actualizada v1.2]
+   MODELO 1- TABLA DE HECHOS  [actualizada v1.2]
    Añadidas tres llaves foráneas: id_riesgo_credito, id_comportamiento, id_exposicion
    Los campos numéricos brutos y flags binarios se conservan en FCT para cálculos DAX
    JOIN de las nuevas DIM replica el CASE WHEN de cada dimensión para garantizar match
@@ -315,7 +315,7 @@ SELECT
     co.id_comportamiento,
     ex.id_exposicion,
 
-    -- Fechas — llaves de conexión con DIM_calendario en Power BI
+    -- Fechas- llaves de conexión con DIM_calendario en Power BI
     t.fecha_desembolso,    -- relaciona con DIM_calendario.Date (análisis temporal)
     t.cosecha_mes,         -- relaciona con DIM_calendario.cosecha_mes (puente hacia T4)
     t.fecha_vencimiento,
@@ -380,7 +380,7 @@ LEFT JOIN DIM_calificacion   AS c   ON  t.calificacion_sbs      = c.calificacion
 LEFT JOIN DIM_garantia       AS ga  ON  t.tipo_garantia         = ga.tipo_garantia
 LEFT JOIN DIM_oficial        AS o   ON  t.oficial_credito       = o.oficial_credito
 
--- DIM_riesgo_credito — JOIN replica los CASE WHEN de la DIM
+-- DIM_riesgo_credito- JOIN replica los CASE WHEN de la DIM
 LEFT JOIN DIM_riesgo_credito AS r   ON  t.tramo_score           = r.tramo_score
                                     AND CASE
                                             WHEN t.pd_probabilidad_default IS NULL      THEN 'Sin PD'
@@ -397,7 +397,7 @@ LEFT JOIN DIM_riesgo_credito AS r   ON  t.tramo_score           = r.tramo_score
                                             ELSE                                              'Alta (>=65%)'
                                         END                     = r.tramo_lgd
 
--- DIM_comportamiento — JOIN replica los CASE WHEN de la DIM
+-- DIM_comportamiento- JOIN replica los CASE WHEN de la DIM
 LEFT JOIN DIM_comportamiento AS co  ON  CASE
                                             WHEN t.es_refinanciado = 0                  THEN 'Sin refinanciación'
                                             WHEN t.numero_refinanciaciones = 1          THEN 'Una vez'
@@ -409,7 +409,7 @@ LEFT JOIN DIM_comportamiento AS co  ON  CASE
                                             ELSE                                              'Activo'
                                         END                     = co.flag_castigo_activo
 
--- DIM_exposicion — JOIN replica los CASE WHEN de la DIM
+-- DIM_exposicion- JOIN replica los CASE WHEN de la DIM
 LEFT JOIN DIM_exposicion     AS ex  ON  CASE
                                             WHEN t.plazo_meses IS NULL                  THEN 'Sin dato'
                                             WHEN t.plazo_meses <=  12                   THEN 'Corto (<=12m)'
@@ -469,26 +469,26 @@ FROM FCT_creditos;
    RELACIONES A CONFIGURAR EN POWER BI
    (referencia para cuando conectes las tablas)
 
-   MODELO 1 — Star Schema Créditos:
+   MODELO 1- Star Schema Créditos:
    ┌──────────────────────────────────────────────────────────────────────────────┐
-   │  DIM_geografia      .id_geografia      → FCT_creditos.id_geografia           │ 1:N
-   │  DIM_segmento       .id_segmento       → FCT_creditos.id_segmento            │ 1:N
-   │  DIM_sector         .id_sector         → FCT_creditos.id_sector              │ 1:N
-   │  DIM_producto       .id_producto       → FCT_creditos.id_producto            │ 1:N
-   │  DIM_calificacion   .id_calificacion   → FCT_creditos.id_calificacion        │ 1:N
-   │  DIM_garantia       .id_garantia       → FCT_creditos.id_garantia            │ 1:N
-   │  DIM_oficial        .id_oficial        → FCT_creditos.id_oficial             │ 1:N
-   │  DIM_riesgo_credito .id_riesgo_credito → FCT_creditos.id_riesgo_credito      │ 1:N  [NUEVO]
-   │  DIM_comportamiento .id_comportamiento → FCT_creditos.id_comportamiento      │ 1:N  [NUEVO]
-   │  DIM_exposicion     .id_exposicion     → FCT_creditos.id_exposicion          │ 1:N  [NUEVO]
-   │  DIM_calendario     .Date              → FCT_creditos.fecha_desembolso       │ 1:N
-   │  DIM_calendario     .cosecha_mes       → MART_T4_cosechas.cosecha_mes        │ 1:N
-   │  MART_T3_clientes   .id_cliente        → FCT_creditos.id_cliente             │ 1:N
+   │  DIM_geografia      .id_geografia     - FCT_creditos.id_geografia           │ 1:N
+   │  DIM_segmento       .id_segmento      - FCT_creditos.id_segmento            │ 1:N
+   │  DIM_sector         .id_sector        - FCT_creditos.id_sector              │ 1:N
+   │  DIM_producto       .id_producto      - FCT_creditos.id_producto            │ 1:N
+   │  DIM_calificacion   .id_calificacion  - FCT_creditos.id_calificacion        │ 1:N
+   │  DIM_garantia       .id_garantia      - FCT_creditos.id_garantia            │ 1:N
+   │  DIM_oficial        .id_oficial       - FCT_creditos.id_oficial             │ 1:N
+   │  DIM_riesgo_credito .id_riesgo_credito- FCT_creditos.id_riesgo_credito      │ 1:N  [NUEVO]
+   │  DIM_comportamiento .id_comportamiento- FCT_creditos.id_comportamiento      │ 1:N  [NUEVO]
+   │  DIM_exposicion     .id_exposicion    - FCT_creditos.id_exposicion          │ 1:N  [NUEVO]
+   │  DIM_calendario     .Date             - FCT_creditos.fecha_desembolso       │ 1:N
+   │  DIM_calendario     .cosecha_mes      - MART_T4_cosechas.cosecha_mes        │ 1:N
+   │  MART_T3_clientes   .id_cliente       - FCT_creditos.id_cliente             │ 1:N
    └──────────────────────────────────────────────────────────────────────────────┘
 
-   MODELO 2 — Star Schema KPIs:
+   MODELO 2- Star Schema KPIs:
    ┌──────────────────────────────────────────────────────────────────────────────┐
-   │  DIM_calendario .Date → MART_T2_kpis.fecha_mes                              │ 1:N
+   │  DIM_calendario .Date- MART_T2_kpis.fecha_mes                              │ 1:N
    └──────────────────────────────────────────────────────────────────────────────┘
 
    DIM_calendario en Power BI (DAX):
