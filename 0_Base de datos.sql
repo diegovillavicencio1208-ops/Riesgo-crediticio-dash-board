@@ -31,7 +31,7 @@ GO
 -- C:\Users\Usuario iTC\Desktop\SQL Curso\Proyectos\3. Riesgo crediticio\Base de datos\
 
 -- ============================================================================================================================
--- 1. T1 — CRÉDITOS
+-- 1. T1 - CRÉDITOS
 --    Granularidad : Operación crediticia individual
 --    Período      : 2024 – 2025
 --    Errores RAW  : Montos negativos, fechas inválidas, tasas imposibles,
@@ -138,7 +138,7 @@ FROM T1_creditos_riesgo_crediticio_RAW;
 GO
 
 -- ============================================================================================================================
--- 2. T2 — KPIs MENSUALES
+-- 2. T2 - KPIs MENSUALES
 --    Granularidad : Mes calendario agregado (nivel portafolio)
 --    Período      : Enero 2024 – Diciembre 2025
 --    Nota         : Tabla independiente, no se relaciona con T1/T3/T4
@@ -192,7 +192,7 @@ FROM T2_kpis_mensuales_riesgo_RAW;
 GO
 
 -- ============================================================================================================================
--- 3. T3 — CLIENTES
+-- 3. T3 - CLIENTES
 --    Granularidad : Cliente consolidado (1 registro por cliente)
 --    Clave        : id_cliente → relaciona con T1 (1 cliente : N créditos)
 -- ============================================================================================================================
@@ -240,7 +240,7 @@ FROM T3_clientes_riesgo_crediticio_RAW;
 GO
 
 -- ============================================================================================================================
--- 4. T4 — COSECHAS / VINTAGE
+-- 4. T4 - COSECHAS / VINTAGE
 --    Granularidad : Cohorte por mes de desembolso × mes de vida
 --    Clave        : cosecha_mes → se deriva de FORMAT(fecha_desembolso, 'yyyy-MM') en T1
 --    Nota         : Cosechas 2025 tienen menos períodos por right-censoring (corte dic-2025)
